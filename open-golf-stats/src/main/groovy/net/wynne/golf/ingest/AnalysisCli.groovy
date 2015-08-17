@@ -4,7 +4,7 @@ class AnalysisCli {
 	
 	static main(args) {
 		
-		CliBuilder cli = new CliBuilder(usage:"analysis [opitons]")
+		CliBuilder cli = new CliBuilder(usage:"analysis [options]")
 
 		cli.help("print this message")
 		cli.extended(args:1, argName:"boolean", "true to print extended statistics")
@@ -34,9 +34,4 @@ class AnalysisCli {
 		analysis.load()
 		analysis.run(options.user)
 	}
-	
-	static run() {
-		Analysis loader = new Analysis(basePath:Analysis.BASE_PATH_DEFAULT, extendedStats:false)
-	}
-
 }

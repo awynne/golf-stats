@@ -1,9 +1,9 @@
 {
     "adam": {
         "userName": "adam",
-        "targetHandicap": 15.0,
+        "targetHandicap": 18,
         "firstName": "Adam",
         "lastName": "Wynne",
-        "handicap": 23.2
+        "handicap": 22
     }
 }

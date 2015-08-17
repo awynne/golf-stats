@@ -80,7 +80,7 @@ class Statistics {
 			// Calculate stroke differential for this card
 			// source: http://golf.about.com/cs/handicapping/a/howcalculated.htm
 			if (card.round == Round.EIGHTEEN_HOLE || card.round == Round.COMBINED) {
-				int differential = (tally.strokes - course.rating) * SLOPE_AVE / course.slope
+				double differential = (tally.strokes - course.rating) * SLOPE_AVE / course.slope
 				diffStats.addValue(differential)
 			}
 		}

@@ -35,13 +35,11 @@ class Analysis {
 	}
 	
 	void run(String userName) {
-		println("Printing stats for user: $userName")
+		Player player = players[userName]
+		println("Printing stats for player: $player")
 		
 		if (!reports) { reports = REPORTS_DEFAULT }
 		
-		println("reports: " + reports)
-		println("ext: $extendedStats")
-
 		List<ScoreCard> cards = scoreCards.findAll { it.player.userName.equals(userName) }
 
 		if (reports.contains(REPORT_18)) { report18(cards) }
