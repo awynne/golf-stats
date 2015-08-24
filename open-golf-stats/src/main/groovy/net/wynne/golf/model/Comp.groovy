@@ -1,8 +1,11 @@
 package net.wynne.golf.model
 
+import groovy.transform.ToString;
+
+@ToString(includeNames = true, includeFields = true)
 class Comp {
 	
-	def data = [:]
+	Map data = [:]
 
 	String name
 	String reference

@@ -1,0 +1,71 @@
+[
+    {
+        "data": {
+            "gir": {
+                "pro-golfer": 11.6,
+                "75-golfer": 8.9,
+                "80-golfer": 7.0,
+                "85-golfer": 5.3,
+                "90-golfer": 3.9,
+                "95-golfer": 2.8,
+                "100-golfer": 1.9,
+                "105-golfer": 1.2,
+                "110-golfer": 0.8
+            },
+            "girp": {
+                "pro-golfer": 17.3,
+                "75-golfer": 17.0,
+                "80-golfer": 15.4,
+                "85-golfer": 13.8,
+                "90-golfer": 12.3,
+                "95-golfer": 10.8,
+                "100-golfer": 9.5,
+                "105-golfer": 8.1,
+                "110-golfer": 6.8
+            }
+        },
+        "description": "GIR is the number of greens hit in regulation per round.  GIRP is the number of greens and fringe hit in regulation plus one stroke per round. ",
+        "name": "girAndGirp",
+        "reference": "Table 9.16. GIR and GIRP scorecard: Broadie, Mark (2014-03-06).Every Shot Counts (p. 203). Penguin Publishing Group. "
+    },
+    {
+        "data": {
+            "awfulTotal": {
+                "pro-golfer": 0.7,
+                "75-golfer": 1.4,
+                "80-golfer": 2.5,
+                "85-golfer": 3.9,
+                "90-golfer": 5.6,
+                "95-golfer": 7.5,
+                "100-golfer": 9.7,
+                "105-golfer": 12.1,
+                "110-golfer": 14.8
+            },
+            "awfulLong": {
+                "pro-golfer": 0.5,
+                "75-golfer": 1.1,
+                "80-golfer": 1.7,
+                "85-golfer": 2.6,
+                "90-golfer": 3.8,
+                "95-golfer": 5.1,
+                "100-golfer": 6.7,
+                "105-golfer": 8.5,
+                "110-golfer": 10.6
+            },
+            "awfulShort": {
+                "pro-golfer": 0.2,
+                "75-golfer": 0.3,
+                "80-golfer": 0.8,
+                "85-golfer": 1.3,
+                "90-golfer": 1.8,
+                "95-golfer": 2.4,
+                "100-golfer": 3.0,
+                "105-golfer": 3.6,
+                "110-golfer": 4.2
+            }
+        },
+        "description": "Off-green strokes lost per round to awful shots. Count one for each awful shot and count two for each double-awful shot and add the numbers to get your awful total. The long-game and short-game stats break the awful total down by where the awful shots occur, outside 100 yards from the hole or inside 100 yards (excluding putts on the green).",
+        "name": "awfulShots",
+        "reference": "Table 9.17. Awful shot scorecard: Broadie, Mark (2014-03-06). Every Shot Counts (p. 207). Penguin Publishing Group. "
+    }
+]

@@ -2,17 +2,20 @@ package net.wynne.golf.ingest
 
 import java.util.List;
 
+import net.wynne.golf.model.Comp
 import net.wynne.golf.model.ScoreCard;
 
-class StatsBuilder {
+class StatsAggregatorBuilder {
 	
 	boolean extended = false
 	
 	List<ScoreCard> scoreCards
+	Map<String,Comp> comps
 	
-	Statistics build() {
+	StatsAggregator build() {
 		assert scoreCards
-		new Statistics(scoreCards, extended)
+		assert comps
+		new StatsAggregator(scoreCards, comps, extended)
 	}
 
 }

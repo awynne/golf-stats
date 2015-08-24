@@ -3,13 +3,13 @@ package net.wynne.golf.types
 import java.util.Map;
 
 enum Group {
-	GOLFER_PRO("pro-golfer", "pro",      0..70),
-	GOLFER_75("75-golfer",   "75glfr",  71..75),
-	GOLFER_80("80-golfer",   "80glfr",  76..80),
-	GOLFER_85("85-golfer",   "85glfr",  81..85),
-	GOLFER_90("90-golfer",   "90glfr",  86..90),
-	GOLFER_95("95-golfer",   "95glfr",  91..95),
-	GOLFER_100("100-golfer", "100glfr", 96..100),
+	GOLFER_PRO("pro-golfer", "pro",       0..70),
+	GOLFER_75("75-golfer",   "75glfr",   71..75),
+	GOLFER_80("80-golfer",   "80glfr",   76..80),
+	GOLFER_85("85-golfer",   "85glfr",   81..85),
+	GOLFER_90("90-golfer",   "90glfr",   86..90),
+	GOLFER_95("95-golfer",   "95glfr",   91..95),
+	GOLFER_100("100-golfer", "100glfr",  96..100),
 	GOLFER_105("105-golfer", "105glfr", 101..105),
 	GOLFER_110("110-golfer", "110glfr", 106..9999);
 	
@@ -36,6 +36,12 @@ enum Group {
 	
 	static Group fromScore(int score) {
 		map[score]
+	}
+	
+	static Group fromLong(String name) {
+		Group.values().find { Group group ->
+			group.longName.equals(name)
+		}
 	}
 	
 	String getLong() {

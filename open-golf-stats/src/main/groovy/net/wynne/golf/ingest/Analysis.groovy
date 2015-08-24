@@ -13,6 +13,7 @@ class Analysis {
 	static final CARD_PATH = "cards"
 	static final COURSE_PATH = "courses"
 	static final PLAYER_PATH = "players"
+	static final COMPS_PATH = "comps"
 	
 	static final REPORT_18 = "18"
 	static final REPORT_9 = "9"
@@ -27,6 +28,7 @@ class Analysis {
 	private Map<String,Player> players
 	private Map<String,Course> courses
 	private List<ScoreCard> scoreCards
+	private Map<String,Comp> comps
 
 	static main(args) {
 		Analysis loader = new Analysis()
@@ -112,22 +114,32 @@ class Analysis {
 
 	
 	void report(String title, List<ScoreCard> cards) {
-		StatsBuilder builder = new StatsBuilder(scoreCards:cards, extended:extendedStats)
-		Statistics stats = builder.build()
+		StatsAggregatorBuilder builder = new StatsAggregatorBuilder(scoreCards:cards, extended:extendedStats, comps:comps)
+		StatsAggregator stats = builder.build()
 		stats.compute()
 		stats.report(title)
 	}
 	
-	List<ScoreCard> load() {
+	void load() {
 		assert basePath
 
 		def cardPath   = basePath + "/" + CARD_PATH
 		def coursePath = basePath + "/" + COURSE_PATH
 		def playerFile = basePath + "/" + PLAYER_PATH + "/players.json"
+		def compFile = basePath + "/" + COMPS_PATH + "/comps.json"
 
 		players = loadPlayers(playerFile)
 		courses = loadCourses(coursePath)
 		scoreCards = parseCards(cardPath, courses, players)
+		comps = loadComps(compFile)
+	}
+	
+	Map<String,Comp> loadComps(String compsFile) {
+		
+		FileInputStream inputFile = new FileInputStream(compsFile)
+		JsonSlurper jsonSlurper = new JsonSlurper()
+
+		jsonSlurper.parseText(inputFile.text)
 	}
 
 	private Map<String,Course> loadCourses(String coursePath) {

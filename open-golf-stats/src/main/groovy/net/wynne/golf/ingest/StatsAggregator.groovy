@@ -3,20 +3,22 @@ package net.wynne.golf.ingest
 import java.math.RoundingMode;
 import java.util.List;
 
+import net.wynne.golf.model.Comp
 import net.wynne.golf.model.Score
 import net.wynne.golf.model.ScoreCard;
 import net.wynne.golf.model.Tee
 import net.wynne.golf.types.Club;
 import net.wynne.golf.types.GreenIn;
+import net.wynne.golf.types.Group;
 import net.wynne.golf.types.Round;
+import net.wynne.golf.types.Stat;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-
-class Statistics {
+class StatsAggregator {
 	
 	static final int LABEL_COL_WIDTH = 18
-	static final int VALUE_COL_WIDTH = 5
+	static final int VALUE_COL_WIDTH = 6
 	static final int COL_PAD = 2
+
 	static final double SLOPE_AVE = 113
 	static final double BONUS_PERCENTAGE = 0.96
 	
@@ -27,10 +29,11 @@ class Statistics {
 	static final String HDR_MIN = "Min"
 	static final String HDR_N = "N"
 	
-	boolean extended = false
+	boolean reportExtended = false
 	
 	private String[] coreCols = [HDR_AVE]//, HDR_TARGET]
 	private String[] extendedCols = [HDR_MAX, HDR_MIN, HDR_N]
+	private String[] targetCols = [Group.GOLFER_95.longName, Group.GOLFER_90.longName]
 
 	private int numValCols 
 	private int numBorders 
@@ -39,35 +42,65 @@ class Statistics {
 	private String headerSep
 	
 	private List<ScoreCard> scoreCards
+	private Map<String,Comp> comps
 
-	private DescriptiveStatistics driveDistStats = new DescriptiveStatistics()
-	private DescriptiveStatistics girpStats = new DescriptiveStatistics()
-	private DescriptiveStatistics girStats = new DescriptiveStatistics()
-	private DescriptiveStatistics awfulLongStats = new DescriptiveStatistics()
-	private DescriptiveStatistics awfulShortStats = new DescriptiveStatistics()
-	private DescriptiveStatistics awfulTotalStats = new DescriptiveStatistics()
-	private DescriptiveStatistics numPuttStats = new DescriptiveStatistics()
-	private DescriptiveStatistics strokeStats = new DescriptiveStatistics()
-	private DescriptiveStatistics diffStats = new DescriptiveStatistics()
-	private DescriptiveStatistics handicapStats = new DescriptiveStatistics()
+	private ExtendedStats driveDistStats = new ExtendedStats()
+	private ExtendedStats girpStats = new ExtendedStats()
+	private ExtendedStats girStats = new ExtendedStats()
+	private ExtendedStats awfulLongStats = new ExtendedStats()
+	private ExtendedStats awfulShortStats = new ExtendedStats()
+	private ExtendedStats awfulTotalStats = new ExtendedStats()
+	private ExtendedStats numPuttStats = new ExtendedStats()
+	private ExtendedStats strokeStats = new ExtendedStats()
+	private ExtendedStats diffStats = new ExtendedStats()
+	private ExtendedStats handicapStats = new ExtendedStats()
 	
-	Statistics(List<ScoreCard> scoreCards, boolean extended) {
+	private Map<Stat,ExtendedStats> extStats = [:]
+	
+	StatsAggregator(List<ScoreCard> scoreCards, Map<String,Comp> comps, boolean extended) {
 		this.scoreCards = scoreCards
-		this.extended = extended
+		this.comps = comps
+		this.reportExtended = extended
+		
+		extStats[Stat.DRIVE_DIST] = driveDistStats
+		extStats[Stat.GIRP] = girpStats
+		extStats[Stat.GIR] = girStats
+		extStats[Stat.AWFUL_LONG] = awfulLongStats
+		extStats[Stat.AWFUL_SHORT] = awfulShortStats
+		extStats[Stat.AWFUL_TOTAL] = awfulTotalStats
+		extStats[Stat.PUTTS] = numPuttStats
+		extStats[Stat.OVER_PAR] = strokeStats
+		extStats[Stat.DIFFERENTIAL] = diffStats
+		extStats[Stat.HANDICAP] = handicapStats
 		
 		initTable()
 	}
 	
 	def compute() {
+		extStats.keySet().each { Stat stat ->
+			Comp comp = comps[stat.shortName]
+			if (comp) {
+				ExtendedStats extStats = extStats[stat]
+
+				targetCols.each { String colName ->
+					extStats.targets[colName] = comp.data[colName]
+				}
+			}
+		} 
+
 		scoreCards.each { ScoreCard card ->
 			// Tally numbers for this score card and store descriptive stats
 			Map tally = perRoundTally(card)
 			
+			// gir/girp
 			girpStats.addValue(tally.girp)
 			girStats.addValue(tally.gir)
+
+			// awfulshots
 			awfulLongStats.addValue(tally.awfulLong)
 			awfulShortStats.addValue(tally.awfulShort)
 			awfulTotalStats.addValue(tally.awfulShort + tally.awfulLong)
+			
 			numPuttStats.addValue(tally.putts)
 			
 			// Get the course info for this card
@@ -182,11 +215,11 @@ class Statistics {
 	}
 	
 	void initTable() {
-		if (extended) {
-			numValCols = coreCols.size() + extendedCols.size()
+		if (reportExtended) {
+			numValCols = coreCols.size() + targetCols.size() + extendedCols.size()
 		}
 		else {
-			numValCols = coreCols.size()
+			numValCols = coreCols.size() + targetCols.size()
 		}
 
 		numBorders = numValCols + 2
@@ -198,16 +231,16 @@ class Statistics {
 	def report(String title) {
 		printTitle(title)
 		printHeader()
-		printRow("Strokes over par", strokeStats)
-		printRow("Differential", diffStats) 
-		printRow("Handicap Index", handicapStats, true) 
-		printRow("Drive dist" , driveDistStats)
-		printRow("GIR per rd" , girStats)
-		printRow("GIRP per rd", girpStats)
-		printRow("Awful long per rd", awfulLongStats)
-		printRow("Awful short per rd", awfulShortStats)
-		printRow("Awful total per rd", awfulTotalStats)
-		printRow("Num putts per rd", numPuttStats)
+		printRow(Stat.OVER_PAR, strokeStats)
+		printRow(Stat.DIFFERENTIAL, diffStats) 
+		printRow(Stat.HANDICAP, handicapStats, true) 
+		printRow(Stat.DRIVE_DIST, driveDistStats)
+		printRow(Stat.GIR, girStats)
+		printRow(Stat.GIRP, girpStats)
+		printRow(Stat.AWFUL_LONG, awfulLongStats)
+		printRow(Stat.AWFUL_SHORT, awfulShortStats)
+		printRow(Stat.AWFUL_TOTAL, awfulTotalStats)
+		printRow(Stat.PUTTS, numPuttStats)
 	}
 	
 	private printTitle(String title) {
@@ -219,8 +252,12 @@ class Statistics {
 	
 	private printHeader() {
 		println(headerSep)
-		print("| ${HDR_STAT_NAME.padRight(LABEL_COL_WIDTH)} | ${HDR_AVE.center(VALUE_COL_WIDTH)} ")
-		if (extended) {
+		
+		String currGroup = Group.fromLong( targetCols[0] ).shortName
+		String futureGroup = Group.fromLong( targetCols[1] ).shortName
+		
+		print("| ${HDR_STAT_NAME.padRight(LABEL_COL_WIDTH)} | ${HDR_AVE.center(VALUE_COL_WIDTH)} | ${currGroup.center(VALUE_COL_WIDTH)} | ${futureGroup.center(VALUE_COL_WIDTH)} ")
+		if (reportExtended) {
 			print("| ${HDR_MIN.center(VALUE_COL_WIDTH)} | ${HDR_MAX.center(VALUE_COL_WIDTH)} ")
 			print("| ${HDR_N.center(VALUE_COL_WIDTH)} ")
 		}
@@ -228,7 +265,7 @@ class Statistics {
 		println(headerSep)
 	}
 	
-	private printRow(String label, DescriptiveStatistics stats, boolean handicap = false) {
+	private printRow(Stat stat, ExtendedStats stats, boolean handicap = false) {
 		if (stats.getN() == 0) { return }
 
 		String aveStr 
@@ -240,10 +277,15 @@ class Statistics {
 		String maxStr = Math.round(stats.getMax()) as String
 		String numStr = stats.getN() as String
 		
-		print("| ${label.padRight(LABEL_COL_WIDTH)} | ${aveStr.center(VALUE_COL_WIDTH)} ")
-		if (extended) {
-			print("| ${minStr.center(VALUE_COL_WIDTH)} | ${maxStr.center(VALUE_COL_WIDTH)} ")
-			print("| ${numStr.center(VALUE_COL_WIDTH)} ")
+		String currTarget = stats.targets[targetCols[0]] ?: ""
+		String futureTarget = stats.targets[targetCols[1]] ?: ""
+		
+		String label = stat.longName
+		
+		print("| ${label.padRight(LABEL_COL_WIDTH)} | ${aveStr.padLeft(VALUE_COL_WIDTH)} | ${currTarget.padLeft(VALUE_COL_WIDTH)} | ${futureTarget.padLeft(VALUE_COL_WIDTH)} ")
+		if (reportExtended) {
+			print("| ${minStr.padLeft(VALUE_COL_WIDTH)} | ${maxStr.padLeft(VALUE_COL_WIDTH)} ")
+			print("| ${numStr.padLeft(VALUE_COL_WIDTH)} ")
 		}
 		print("|\n")
 		println(rowSep)
