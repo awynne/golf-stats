@@ -1,4 +1,4 @@
-package net.wynne.golf.ingest
+package net.wynne.golf.analysis
 
 import java.util.List;
 

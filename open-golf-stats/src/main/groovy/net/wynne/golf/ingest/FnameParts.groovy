@@ -1,4 +1,4 @@
-package net.wynne.golf.types
+package net.wynne.golf.ingest
 
 class FnameParts {
 	static final int DATE = 0

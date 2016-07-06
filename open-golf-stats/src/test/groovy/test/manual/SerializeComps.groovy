@@ -6,8 +6,8 @@ import java.rmi.activation.ActivationGroupDesc.CommandEnvironment;
 
 import com.sun.java.swing.plaf.gtk.GTKConstants.StateType;
 
+import net.wynne.golf.analysis.Stat;
 import net.wynne.golf.model.Comp;
-import net.wynne.golf.types.Stat;
 import groovy.json.JsonOutput;
 import groovy.transform.ToString
 

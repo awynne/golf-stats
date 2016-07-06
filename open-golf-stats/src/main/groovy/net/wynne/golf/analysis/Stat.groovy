@@ -1,4 +1,4 @@
-package net.wynne.golf.types
+package net.wynne.golf.analysis
 
 import java.util.Map;
 

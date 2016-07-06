@@ -5,7 +5,6 @@ import groovy.transform.ToString;
 import java.util.List;
 
 import net.wynne.golf.types.Round
-import net.wynne.golf.types.Scoring;
 
 @ToString(includeNames = true, includeFields = true)
 public class ScoreCard {
@@ -23,7 +22,6 @@ public class ScoreCard {
 	int parOut
 
 	Round round
-	private String scoring = Scoring.STROKE
 
 	List<Score> scores = new ArrayList<Score>()
 	

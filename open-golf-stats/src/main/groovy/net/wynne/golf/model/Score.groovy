@@ -10,24 +10,12 @@ public class Score {
 	
 	int hole
 	
-	// Tee stats
-	
-	Club firstClub
-	Accuracy driveAccuracy
+	static Boolean hitFairway 
 	int driveDistance
-	
-	// Approach stats
-
-	GreenIn greenIn
-	int numAwfulLong
-	
-	// Putting stats
-	
-	int putt1distance
 	int numPutts
-	int numAwfulShort
-	
-	// final score
-	
 	int strokes;
+	
+	static void main(args) {
+		println("hey: " + hitFairway)
+	}
 }

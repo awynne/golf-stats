@@ -1,17 +1,16 @@
-package net.wynne.golf.ingest
+package net.wynne.golf.analysis
 
 import java.math.RoundingMode;
 import java.util.List;
 
+import net.wynne.golf.data.ExtendedStats;
 import net.wynne.golf.model.Comp
 import net.wynne.golf.model.Score
 import net.wynne.golf.model.ScoreCard;
 import net.wynne.golf.model.Tee
-import net.wynne.golf.types.Club;
 import net.wynne.golf.types.GreenIn;
 import net.wynne.golf.types.Group;
 import net.wynne.golf.types.Round;
-import net.wynne.golf.types.Stat;
 
 class StatsAggregator {
 	
@@ -47,9 +46,6 @@ class StatsAggregator {
 	private ExtendedStats driveDistStats = new ExtendedStats()
 	private ExtendedStats girpStats = new ExtendedStats()
 	private ExtendedStats girStats = new ExtendedStats()
-	private ExtendedStats awfulLongStats = new ExtendedStats()
-	private ExtendedStats awfulShortStats = new ExtendedStats()
-	private ExtendedStats awfulTotalStats = new ExtendedStats()
 	private ExtendedStats numPuttStats = new ExtendedStats()
 	private ExtendedStats strokeStats = new ExtendedStats()
 	private ExtendedStats diffStats = new ExtendedStats()
@@ -65,9 +61,6 @@ class StatsAggregator {
 		extStats[Stat.DRIVE_DIST] = driveDistStats
 		extStats[Stat.GIRP] = girpStats
 		extStats[Stat.GIR] = girStats
-		extStats[Stat.AWFUL_LONG] = awfulLongStats
-		extStats[Stat.AWFUL_SHORT] = awfulShortStats
-		extStats[Stat.AWFUL_TOTAL] = awfulTotalStats
 		extStats[Stat.PUTTS] = numPuttStats
 		extStats[Stat.OVER_PAR] = strokeStats
 		extStats[Stat.DIFFERENTIAL] = diffStats
@@ -96,11 +89,6 @@ class StatsAggregator {
 			girpStats.addValue(tally.girp)
 			girStats.addValue(tally.gir)
 
-			// awfulshots
-			awfulLongStats.addValue(tally.awfulLong)
-			awfulShortStats.addValue(tally.awfulShort)
-			awfulTotalStats.addValue(tally.awfulShort + tally.awfulLong)
-			
 			numPuttStats.addValue(tally.putts)
 			
 			// Get the course info for this card
@@ -123,15 +111,16 @@ class StatsAggregator {
 	
 	Map perRoundTally(ScoreCard card) {
 		// per round stats
-		int girp = 0, gir = 0, awfulLong = 0, awfulShort = 0, putts = 0, strokes = 0
+		int girp = 0, gir = 0, putts = 0, strokes = 0
 
 		card.scores.each { Score score ->
 			// Drive distance
-			if (score.firstClub.equals(Club.DRIVER) && score.driveDistance != null && score.driveDistance > 0) {
+			if (score.driveDistance) {
 				driveDistStats.addValue(score.driveDistance)
 			}
 			
 			// GIR/P
+			/*
 			if (score.greenIn.equals(GreenIn.REGULATION)) {
 				gir++
 				girp++
@@ -142,10 +131,7 @@ class StatsAggregator {
 			else {
 				// GreenIn.MISS
 			}
-			
-			// Awful shots
-			if (awfulLong >= 0) { awfulLong  += score.numAwfulLong }
-			if (awfulShort >= 0) { awfulShort += score.numAwfulShort }
+			*/
 			
 			// num putts
 			if (putts >= 0) { putts += score.numPutts }
@@ -154,7 +140,7 @@ class StatsAggregator {
 			strokes += score.strokes
 		}
 
-		[girp:girp, gir:gir, awfulLong:awfulLong, awfulShort:awfulShort, putts:putts, strokes:strokes]
+		[girp:girp, gir:gir, putts:putts, strokes:strokes]
 	}
 
 	Map calcCourseInfo(ScoreCard card) {
@@ -237,9 +223,6 @@ class StatsAggregator {
 		printRow(Stat.DRIVE_DIST, driveDistStats)
 		printRow(Stat.GIR, girStats)
 		printRow(Stat.GIRP, girpStats)
-		printRow(Stat.AWFUL_LONG, awfulLongStats)
-		printRow(Stat.AWFUL_SHORT, awfulShortStats)
-		printRow(Stat.AWFUL_TOTAL, awfulTotalStats)
 		printRow(Stat.PUTTS, numPuttStats)
 	}
 	

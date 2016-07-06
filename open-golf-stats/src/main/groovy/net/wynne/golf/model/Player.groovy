@@ -11,5 +11,4 @@ class Player {
 	
 	double handicap
 	double targetHandicap
-
 }

@@ -1,12 +1,7 @@
-package net.wynne.golf.ingest
+package net.wynne.golf.model
 
 import java.util.List;
 
-import net.wynne.golf.model.Course;
-import net.wynne.golf.model.Player
-import net.wynne.golf.model.Score;
-import net.wynne.golf.model.ScoreCard
-import net.wynne.golf.model.Tee
 import net.wynne.golf.types.Round;
 
 class CardCombinedBuilder {

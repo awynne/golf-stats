@@ -1,48 +1,37 @@
-package net.wynne.golf.ingest
+package net.wynne.golf.analysis
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import groovy.json.JsonSlurper
+import net.wynne.golf.data.AnalysisInput
+import net.wynne.golf.data.AnalysisResult
 import net.wynne.golf.model.*
 import net.wynne.golf.types.Round;
 
-
 class Analysis {
-	
-	static final BASE_PATH_DEFAULT = "src/test/resources"
-	static final CARD_PATH = "cards"
-	static final COURSE_PATH = "courses"
-	static final PLAYER_PATH = "players"
-	static final COMPS_PATH = "comps"
-	
 	static final REPORT_18 = "18"
 	static final REPORT_9 = "9"
 	static final REPORT_18_NORMALIZED = "18norm"
 	static final REPORT_9_NORMALIZED = "9norm"
 	static final String[] REPORTS_DEFAULT = [REPORT_18, REPORT_9, REPORT_18_NORMALIZED, REPORT_9_NORMALIZED]
+	static final boolean PRINT_EXTENDED = false
 	
-	String basePath  = BASE_PATH_DEFAULT
-	boolean extendedStats = false
-	String[] reports
+	private AnalysisInput input
 
-	private Map<String,Player> players
-	private Map<String,Course> courses
-	private List<ScoreCard> scoreCards
-	private Map<String,Comp> comps
+	private void run(AnalysisInput input, String userName) {
+		assert input.players
+		assert input.courses
+		assert input.scoreCards
+		assert input.comps
+		assert userName
+		
+		this.input = input
 
-	static main(args) {
-		Analysis loader = new Analysis()
-		loader.load()
-		loader.run("adam")
-	}
-	
-	void run(String userName) {
-		Player player = players[userName]
-		println("Printing stats for player: $player")
+		println("Printing stats for player: $userName")
 		
-		if (!reports) { reports = REPORTS_DEFAULT }
+		def reports = REPORTS_DEFAULT 
 		
-		List<ScoreCard> cards = scoreCards.findAll { it.player.userName.equals(userName) }
+		List<ScoreCard> cards = input.scoreCards.findAll { it.player.userName.equals(userName) }
 
 		if (reports.contains(REPORT_18)) { report18(cards) }
 		if (reports.contains(REPORT_9))  { report9(cards) }
@@ -53,8 +42,8 @@ class Analysis {
 		
 		if (reports.contains(REPORT_9_NORMALIZED))  { report9Normalized(cards, cards09Norm) }
 		if (reports.contains(REPORT_18_NORMALIZED)) { report18Normalized(cards, cards09) }
-
 	}
+	
 	
 	void report18(List<ScoreCard> cards) {
 		List <ScoreCard>cards18 = cards.findAll { ScoreCard card -> card.round == Round.EIGHTEEN_HOLE}
@@ -112,75 +101,13 @@ class Analysis {
 		report("9-hole Normalized (" + cards09Norm.size() + ")", cards09Norm)
 	}
 
-	
 	void report(String title, List<ScoreCard> cards) {
-		StatsAggregatorBuilder builder = new StatsAggregatorBuilder(scoreCards:cards, extended:extendedStats, comps:comps)
+		StatsAggregatorBuilder builder = new StatsAggregatorBuilder(scoreCards:cards, extended:PRINT_EXTENDED, comps:input.comps)
 		StatsAggregator stats = builder.build()
 		stats.compute()
 		stats.report(title)
 	}
-	
-	void load() {
-		assert basePath
 
-		def cardPath   = basePath + "/" + CARD_PATH
-		def coursePath = basePath + "/" + COURSE_PATH
-		def playerFile = basePath + "/" + PLAYER_PATH + "/players.json"
-		def compFile = basePath + "/" + COMPS_PATH + "/comps.json"
 
-		players = loadPlayers(playerFile)
-		courses = loadCourses(coursePath)
-		scoreCards = parseCards(cardPath, courses, players)
-		comps = loadComps(compFile)
-	}
-	
-	Map<String,Comp> loadComps(String compsFile) {
-		
-		FileInputStream inputFile = new FileInputStream(compsFile)
-		JsonSlurper jsonSlurper = new JsonSlurper()
-
-		jsonSlurper.parseText(inputFile.text)
-	}
-
-	private Map<String,Course> loadCourses(String coursePath) {
-		Map<String,Course> courses = new HashMap<String,Course>()
-
-		File dir = new File(coursePath);
-		File[] listOfFiles = dir.listFiles();
-		
-		listOfFiles.each { file ->
-			FileInputStream inputFile = new FileInputStream(file)
-			JsonSlurper jsonSlurper = new JsonSlurper()
-			Course course = jsonSlurper.parseText(inputFile.text)
-			courses.put(course.id, course)
-		}
-		
-		courses
-	}
-	
-	private Map<String,Player> loadPlayers(String playerFile) {
-		FileInputStream inputFile = new FileInputStream(playerFile)
-		JsonSlurper jsonSlurper = new JsonSlurper()
-		Map<String, Player> players = jsonSlurper.parseText(inputFile.text)
-		
-		return players
-	}
-
-	private List<ScoreCard> parseCards(String cardPath, Map courses, Map players) {
-		List<ScoreCard> cards = new ArrayList<ScoreCard>()
-		
-		String[] files = [ 
-			"$cardPath/2015-07-16_SoPark9_adam_white_9.csv",
-			"$cardPath/2015-07-23_MtLebanon_adam_white_9.csv",
-			"$cardPath/2015-08-09_Brandywine_adam_white_18.csv"
-		]
-		
-		files.each { file ->
-			ScoreCardParser parser = new ScoreCardParser(filePath:file, courses:courses, players:players);
-			cards << parser.parse()
-		}
-
-		cards
-	}
 
 }

@@ -11,7 +11,7 @@ enum Round {
 	private String longName
 	private String shortName
 	
-	static final Map<String,Accuracy> map
+	static final Map<String,Round> map
 	
 	static {
 		map = [:] as TreeMap

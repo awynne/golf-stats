@@ -1,6 +1,11 @@
-package net.wynne.golf.ingest
+package net.wynne.golf.cli
 
-class AnalysisCli {
+import net.wynne.golf.analysis.Analysis;
+import net.wynne.golf.data.AnalysisInput
+import net.wynne.golf.ingest.DataLoader
+
+
+class GolfStats {
 	
 	static main(args) {
 		
@@ -22,16 +27,23 @@ class AnalysisCli {
 		}
 		
 		Analysis analysis = new Analysis()
+		//Reporter reporter = new Reporter();
 
+		/*
 		if (options.extended) {
-			analysis.extendedStats = options.extended.toBoolean()
+			analysis.PRINT_EXTENDED = options.extended.toBoolean()
 		}
+		*/
 		
+		/*
 		if (options.reports) {
 			analysis.reports = options.reports.split(",")
+			//reporter.reports = options.reports.split(",")
 		}
+		*/
 		
-		analysis.load()
-		analysis.run(options.user)
+		AnalysisInput input = new DataLoader().load()
+		analysis.run(input, options.user)
+		//reporter.report()
 	}
 }
